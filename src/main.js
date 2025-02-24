@@ -3,6 +3,9 @@ import App from './App.vue'
 import './styles/index.css'
 
 document.addEventListener("DOMContentLoaded", () => {
+    document.body.style.backgroundColor = "#ffffff"; // 背景を白に設定
+    document.body.style.color = "#000000"; // テキストを黒に設定
+
     const menuToggle = document.getElementById("menu-toggle");
     const navMenu = document.getElementById("nav-menu");
 
