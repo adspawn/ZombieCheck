@@ -5,32 +5,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZombieCheck</title>
-    <link rel="stylesheet" href="/src/styles/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="/src/main.js"></script>
 </head>
 
-<body>
-    <header>
-        <div class="logo">ZombieCheck</div>
-        <button class="menu-toggle">&#9776;</button>
-        <nav class="nav-menu">
-            <ul>
-                <li><a href="#">ホーム</a></li>
-                <li><a href="#">このサイトについて</a></li>
-                <li><a href="#">利用規約</a></li>
-                <li><a href="#">プライバシーポリシー</a></li>
-                <li><a href="#">運営概要</a></li>
-            </ul>
+<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen">
+    <header class="w-full p-4 bg-gray-800 flex justify-between items-center shadow-lg">
+        <div class="text-2xl font-bold">ZombieCheck</div>
+        <button id="menu-toggle" class="text-2xl md:hidden">&#9776;</button>
+        <nav id="nav-menu" class="hidden md:flex space-x-4">
+            <a href="#" class="hover:text-yellow-400">ホーム</a>
+            <a href="#" class="hover:text-yellow-400">このサイトについて</a>
+            <a href="#" class="hover:text-yellow-400">利用規約</a>
+            <a href="#" class="hover:text-yellow-400">プライバシーポリシー</a>
+            <a href="#" class="hover:text-yellow-400">運営概要</a>
         </nav>
     </header>
 
-    <main>
-        <h1>URLチェックフォーム</h1>
-        <form id="url-check-form">
-            <label for="url">URLを入力してください：</label>
-            <input type="text" id="url" name="url" required>
-            <button type="submit">送信</button>
-            <p id="error-message" style="color: red; display: none;">正しいURLを入力してください</p>
+    <main class="flex flex-col items-center mt-10 w-full px-6">
+        <h1 class="text-3xl font-bold mb-6">URLチェックフォーム</h1>
+        <form id="url-check-form" class="w-full max-w-md bg-gray-800 p-6 rounded-lg shadow-lg">
+            <label for="url" class="block mb-2 text-lg">URLを入力してください：</label>
+            <input type="text" id="url" name="url" class="w-full p-2 border rounded text-black" required>
+            <button type="submit"
+                class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded">送信</button>
+            <p id="error-message" class="text-red-500 mt-2 hidden">正しいURLを入力してください</p>
         </form>
     </main>
 </body>
