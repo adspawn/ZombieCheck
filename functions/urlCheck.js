@@ -17,6 +17,49 @@ async function validateUrl(url) {
     }
 }
 
+async function sendEmailNotification(url, clientInfo) {
+    const timestamp = new Date().toISOString();
+    const emailContent = {
+        to: 'adspawn@gmail.com',
+        from: 'notification@zombiecheck.com',
+        subject: '新しいゾンビURLが通報されました',
+        text: `
+通報されたURL: ${url}
+通報日時: ${timestamp}
+IPアドレス: ${clientInfo.ip}
+ユーザーエージェント: ${clientInfo.userAgent}
+        `
+    };
+
+    try {
+        await fetch('https://api.mailchannels.net/tx/v1/send', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify(emailContent),
+        });
+        return true;
+    } catch (error) {
+        console.error('メール送信エラー:', error);
+        return false;
+    }
+}
+
+async function saveToKV(url, clientInfo) {
+    const timestamp = new Date().toISOString();
+    const data = {
+        url: url,
+        timestamp: timestamp,
+        ip: clientInfo.ip,
+        userAgent: clientInfo.userAgent
+    };
+
+    // URLをキーとして使用し、重複を防ぐ
+    const key = `url_${btoa(url)}`;
+    await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
+}
+
 export async function onRequestPost(context) {
     try {
         const request = await context.request.json();
@@ -32,11 +75,23 @@ export async function onRequestPost(context) {
             );
         }
 
-        // URLの検証ロジックをここに追加
-        const result = await validateUrl(url);
+        // URLの検証
+        const validationResult = await validateUrl(url);
+
+        // クライアント情報の取得
+        const clientInfo = {
+            ip: context.request.headers.get('cf-connecting-ip'),
+            userAgent: context.request.headers.get('user-agent'),
+        };
+
+        // KVに保存
+        await saveToKV(url, clientInfo);
 
         return new Response(
-            JSON.stringify({ message: result }),
+            JSON.stringify({
+                message: '通報を受け付けました。ご協力ありがとうございます。',
+                details: validationResult
+            }),
             {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }

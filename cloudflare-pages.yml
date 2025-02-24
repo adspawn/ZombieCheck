@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v2
       
@@ -28,3 +30,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist 
+      - name: Add GitHub Token to Cloudflare
+        run: |
+          npx wrangler secret put GITHUB_TOKEN
+          npx wrangler secret put REPO_OWNER
+          npx wrangler secret put REPO_NAME 
