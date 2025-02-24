@@ -46,7 +46,7 @@ IPアドレス: ${clientInfo.ip}
     }
 }
 
-async function saveToKV(url, clientInfo) {
+async function saveToKV(context, url, clientInfo) {
     const timestamp = new Date().toISOString();
     const data = {
         url: url,
@@ -84,8 +84,8 @@ export async function onRequestPost(context) {
             userAgent: context.request.headers.get('user-agent'),
         };
 
-        // KVに保存
-        await saveToKV(url, clientInfo);
+        // KVに保存（contextを渡す）
+        await saveToKV(context, url, clientInfo);
 
         return new Response(
             JSON.stringify({
