@@ -78,13 +78,13 @@ export async function onRequestPost(context) {
                 JSON.stringify({ message: 'URLを入力してください' }),
                 {
                     status: 400,
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
                 }
             );
         }
-
-        // URLの検証
-        const validationResult = await validateUrl(url);
 
         // クライアント情報の取得
         const clientInfo = {
@@ -93,35 +93,44 @@ export async function onRequestPost(context) {
         };
 
         // KVに保存
-        const savedToKV = await saveToKV(context, url, clientInfo);
+        const timestamp = new Date().toISOString();
+        const data = {
+            url: url,
+            timestamp: timestamp,
+            ip: clientInfo.ip,
+            userAgent: clientInfo.userAgent
+        };
 
-        if (!savedToKV) {
+        try {
+            const key = `url_${btoa(url)}`;
+            await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
+
             return new Response(
-                JSON.stringify({ message: 'データの保存に失敗しました' }),
+                JSON.stringify({
+                    message: '通報を受け付けました。ご協力ありがとうございます。'
+                }),
                 {
-                    status: 500,
-                    headers: { 'Content-Type': 'application/json' }
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
                 }
             );
+        } catch (kvError) {
+            console.error('KV保存エラー:', kvError);
+            throw new Error('データの保存に失敗しました');
         }
-
-        return new Response(
-            JSON.stringify({
-                message: '通報を受け付けました。ご協力ありがとうございます。',
-                details: validationResult
-            }),
-            {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
     } catch (error) {
         console.error('エラー:', error);
         return new Response(
             JSON.stringify({ message: 'サーバーエラーが発生しました' }),
             {
                 status: 500,
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
             }
         );
     }
