@@ -55,9 +55,16 @@ async function saveToKV(context, url, clientInfo) {
         userAgent: clientInfo.userAgent
     };
 
-    // URLをキーとして使用し、重複を防ぐ
-    const key = `url_${btoa(url)}`;
-    await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
+    try {
+        // URLをキーとして使用し、重複を防ぐ
+        const key = `url_${btoa(url)}`;
+        await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
+        console.log('KVに保存成功:', key);
+        return true;
+    } catch (error) {
+        console.error('KV保存エラー:', error);
+        return false;
+    }
 }
 
 export async function onRequestPost(context) {
@@ -84,8 +91,18 @@ export async function onRequestPost(context) {
             userAgent: context.request.headers.get('user-agent'),
         };
 
-        // KVに保存（contextを渡す）
-        await saveToKV(context, url, clientInfo);
+        // KVに保存
+        const savedToKV = await saveToKV(context, url, clientInfo);
+
+        if (!savedToKV) {
+            return new Response(
+                JSON.stringify({ message: 'データの保存に失敗しました' }),
+                {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+        }
 
         return new Response(
             JSON.stringify({
@@ -98,6 +115,7 @@ export async function onRequestPost(context) {
             }
         );
     } catch (error) {
+        console.error('エラー:', error);
         return new Response(
             JSON.stringify({ message: 'サーバーエラーが発生しました' }),
             {

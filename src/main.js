@@ -1,6 +1,7 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import './styles/index.css'
+// Vueの import を削除
+// import { createApp } from 'vue'
+// import App from './App.vue'
+// import './styles/index.css'
 
 document.addEventListener("DOMContentLoaded", () => {
     // 背景設定
@@ -67,5 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-const app = createApp(App)
-app.mount('#app')
+// Vueの初期化を削除
+// const app = createApp(App)
+// app.mount('#app')
