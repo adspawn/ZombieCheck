@@ -37,8 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
+            if (!response.ok) {
+                resultDiv.className = 'mt-4 text-red-500';
+            } else {
+                resultDiv.className = 'mt-4 text-green-500';
+            }
             resultDiv.textContent = data.message;
         } catch (error) {
+            resultDiv.className = 'mt-4 text-red-500';
             resultDiv.textContent = 'エラーが発生しました。もう一度お試しください。';
         } finally {
             // ボタンを再度有効化

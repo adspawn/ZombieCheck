@@ -1,3 +1,22 @@
+async function validateUrl(url) {
+    // URLの形式チェック
+    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
+    if (!urlPattern.test(url)) {
+        return '無効なURLの形式です';
+    }
+
+    try {
+        // URLが実際にアクセス可能かチェック
+        const response = await fetch(url, { method: 'HEAD' });
+        if (!response.ok) {
+            return 'このURLにアクセスできません';
+        }
+        return 'URLの検証が完了しました';
+    } catch (error) {
+        return 'URLへのアクセス中にエラーが発生しました';
+    }
+}
+
 export async function onRequestPost(context) {
     try {
         const request = await context.request.json();
