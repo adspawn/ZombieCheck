@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // URLの形式を検証
-        const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
+        // URLの形式を検証（より緩やかな正規表現に変更）
+        const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/;
         if (!urlPattern.test(urlInput.value)) {
             resultDiv.className = "mt-4 text-center text-red-500";
             resultDiv.textContent = "正しいURLの形式で入力してください";
@@ -39,7 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
         resultDiv.textContent = "";
 
         try {
-            const response = await fetch("/api/check-url", {
+            // APIエンドポイントのパスを修正
+            const response = await fetch("/functions/check-url", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
+            console.log('Response:', data); // デバッグ用
 
             if (response.ok) {
                 resultDiv.className = "mt-4 text-center text-green-500";
@@ -58,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 resultDiv.textContent = data.message || "エラーが発生しました";
             }
         } catch (error) {
+            console.error('Error:', error); // デバッグ用
             resultDiv.className = "mt-4 text-center text-red-500";
             resultDiv.textContent = "サーバーとの通信に失敗しました";
         } finally {

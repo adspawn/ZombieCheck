@@ -1,6 +1,6 @@
 async function validateUrl(url) {
-    // URLの形式チェック
-    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
+    // URLの形式チェック（より緩やかな正規表現に変更）
+    const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/;
     if (!urlPattern.test(url)) {
         return '無効なURLの形式です';
     }
@@ -13,6 +13,7 @@ async function validateUrl(url) {
         }
         return 'URLの検証が完了しました';
     } catch (error) {
+        console.error('Validation error:', error); // デバッグ用
         return 'URLへのアクセス中にエラーが発生しました';
     }
 }
