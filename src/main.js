@@ -25,11 +25,19 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // URLの形式を検証（より緩やかな正規表現に変更）
+        // URLの形式を検証
         const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/;
         if (!urlPattern.test(urlInput.value)) {
             resultDiv.className = "mt-4 text-center text-red-500";
             resultDiv.textContent = "正しいURLの形式で入力してください";
+            return;
+        }
+
+        // Turnstileのトークンを取得
+        const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]').value;
+        if (!turnstileResponse) {
+            resultDiv.className = "mt-4 text-center text-red-500";
+            resultDiv.textContent = "認証を完了してください";
             return;
         }
 
@@ -39,13 +47,15 @@ document.addEventListener("DOMContentLoaded", () => {
         resultDiv.textContent = "";
 
         try {
-            // APIエンドポイントのパスを/api/に修正
             const response = await fetch("/api/check-url", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ url: urlInput.value })
+                body: JSON.stringify({
+                    url: urlInput.value,
+                    turnstileToken: turnstileResponse
+                })
             });
 
             const data = await response.json();

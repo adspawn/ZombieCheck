@@ -72,6 +72,22 @@ async function saveToKV(context, url, clientInfo) {
     }
 }
 
+async function verifyTurnstileToken(token) {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            secret: '0x4AAAAAAA-YmC85x7NZifJiXciC5JPYffM',
+            response: token,
+        }),
+    });
+
+    const data = await response.json();
+    return data.success;
+}
+
 export async function onRequestPost(context) {
     try {
         // デバッグ: 利用可能な環境変数を確認
@@ -83,11 +99,26 @@ export async function onRequestPost(context) {
         }
 
         const request = await context.request.json();
-        const { url } = request;
+        const { url, turnstileToken } = request;
 
-        if (!url) {
+        if (!url || !turnstileToken) {
             return new Response(
-                JSON.stringify({ message: 'URLを入力してください' }),
+                JSON.stringify({ message: '必要な情報が不足しています' }),
+                {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                }
+            );
+        }
+
+        // Turnstileトークンを検証
+        const isValid = await verifyTurnstileToken(turnstileToken);
+        if (!isValid) {
+            return new Response(
+                JSON.stringify({ message: '認証に失敗しました' }),
                 {
                     status: 400,
                     headers: {
