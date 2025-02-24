@@ -74,6 +74,14 @@ async function saveToKV(context, url, clientInfo) {
 
 export async function onRequestPost(context) {
     try {
+        // デバッグ: 利用可能な環境変数を確認
+        console.log('Available env:', Object.keys(context.env));
+
+        if (!context.env.ZOMBIE_URLS) {
+            console.error('KV binding missing. Available env:', context.env);
+            throw new Error('KV binding not found');
+        }
+
         const request = await context.request.json();
         const { url } = request;
 
