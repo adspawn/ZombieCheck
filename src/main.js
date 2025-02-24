@@ -15,18 +15,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // URLバリデーション
-    const form = document.getElementById("url-check-form");
-    const urlInput = document.getElementById("url");
-    const errorMessage = document.getElementById("error-message");
+    const form = document.querySelector('form');
+    const urlInput = document.querySelector('#url-input');
+    const submitButton = document.querySelector('#submit-button');
+    const resultDiv = document.querySelector('#result');
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
-        if (!urlPattern.test(urlInput.value)) {
-            errorMessage.classList.remove("hidden");
-        } else {
-            errorMessage.classList.add("hidden");
-            alert("URLが正しく入力されました！");
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // フォームのデフォルトの送信を防ぐ
+
+        // ボタンを無効化し、ローディング状態を表示
+        submitButton.disabled = true;
+        submitButton.textContent = '処理中...';
+
+        try {
+            const response = await fetch('/api/check-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: urlInput.value })
+            });
+
+            const data = await response.json();
+            resultDiv.textContent = data.message;
+        } catch (error) {
+            resultDiv.textContent = 'エラーが発生しました。もう一度お試しください。';
+        } finally {
+            // ボタンを再度有効化
+            submitButton.disabled = false;
+            submitButton.textContent = '送信';
         }
     });
 });

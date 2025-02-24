@@ -1,27 +1,35 @@
 export async function onRequestPost(context) {
     try {
         const request = await context.request.json();
+        const { url } = request;
 
-        if (!request.url || !/^https?:\/\/[\w.-]+\.[a-z]{2,6}([\/\w .-]*)*\/?$/.test(request.url)) {
-            return new Response(JSON.stringify({ error: "Invalid URL" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" }
-            });
+        if (!url) {
+            return new Response(
+                JSON.stringify({ message: 'URLを入力してください' }),
+                {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
         }
 
-        console.log(`URL received: ${request.url}`);
+        // URLの検証ロジックをここに追加
+        const result = await validateUrl(url);
 
-        return new Response(JSON.stringify({ message: "URL received successfully" }), {
-            status: 200,
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
+        return new Response(
+            JSON.stringify({ message: result }),
+            {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
             }
-        });
+        );
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-        });
+        return new Response(
+            JSON.stringify({ message: 'サーバーエラーが発生しました' }),
+            {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            }
+        );
     }
 }
