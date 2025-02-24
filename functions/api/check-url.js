@@ -13,7 +13,7 @@ async function validateUrl(url) {
         }
         return 'URLの検証が完了しました';
     } catch (error) {
-        console.error('Validation error:', error); // デバッグ用
+        console.error('Validation error:', error);
         return 'URLへのアクセス中にエラーが発生しました';
     }
 }
@@ -57,7 +57,6 @@ async function saveToKV(context, url, clientInfo) {
     };
 
     try {
-        // URLをキーとして使用し、重複を防ぐ
         const key = `url_${btoa(url)}`;
         await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
         console.log('KVに保存成功:', key);
@@ -86,6 +85,21 @@ export async function onRequestPost(context) {
             );
         }
 
+        // URLの検証
+        const validationResult = await validateUrl(url);
+        if (validationResult !== 'URLの検証が完了しました') {
+            return new Response(
+                JSON.stringify({ message: validationResult }),
+                {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                }
+            );
+        }
+
         // クライアント情報の取得
         const clientInfo = {
             ip: context.request.headers.get('cf-connecting-ip'),
@@ -93,38 +107,28 @@ export async function onRequestPost(context) {
         };
 
         // KVに保存
-        const timestamp = new Date().toISOString();
-        const data = {
-            url: url,
-            timestamp: timestamp,
-            ip: clientInfo.ip,
-            userAgent: clientInfo.userAgent
-        };
-
-        try {
-            const key = `url_${btoa(url)}`;
-            await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
-
-            return new Response(
-                JSON.stringify({
-                    message: '通報を受け付けました。ご協力ありがとうございます。'
-                }),
-                {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
-                    }
-                }
-            );
-        } catch (kvError) {
-            console.error('KV保存エラー:', kvError);
+        const savedToKV = await saveToKV(context, url, clientInfo);
+        if (!savedToKV) {
             throw new Error('データの保存に失敗しました');
         }
+
+        return new Response(
+            JSON.stringify({
+                message: '通報を受け付けました。ご協力ありがとうございます。',
+                details: validationResult
+            }),
+            {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            }
+        );
     } catch (error) {
         console.error('エラー:', error);
         return new Response(
-            JSON.stringify({ message: 'サーバーエラーが発生しました' }),
+            JSON.stringify({ message: error.message || 'サーバーエラーが発生しました' }),
             {
                 status: 500,
                 headers: {
