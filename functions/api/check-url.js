@@ -58,8 +58,14 @@ async function saveToKV(context, url, clientInfo) {
 
     try {
         const key = `url_${btoa(url)}`;
+        console.log('KV保存開始:', { key, data });
+
+        if (!context.env.ZOMBIE_URLS) {
+            throw new Error('KV binding not found');
+        }
+
         await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
-        console.log('KVに保存成功:', key);
+        console.log('KV保存成功:', key);
         return true;
     } catch (error) {
         console.error('KV保存エラー:', error);

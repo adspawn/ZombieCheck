@@ -1,6 +1,13 @@
 name = "zombie-check"
 compatibility_date = "2024-01-01"
 
+[env.production]
+kv_namespaces = [
+  { binding = "ZOMBIE_URLS", id = "2fbd55dff7324a228cff1fe44ff066ef" }
+]
+
+# 開発環境用のKV設定
+[env.development]
 kv_namespaces = [
   { binding = "ZOMBIE_URLS", id = "2fbd55dff7324a228cff1fe44ff066ef" }
 ] 
