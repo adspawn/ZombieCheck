@@ -56,20 +56,19 @@ async function saveToKV(context, url, clientInfo) {
         userAgent: clientInfo.userAgent
     };
 
+    if (!context.env.ZOMBIE_URLS) {
+        console.error('KV binding not found in context.env:', context.env);
+        throw new Error('KV binding not found');
+    }
+
     try {
         const key = `url_${btoa(url)}`;
-        console.log('KV保存開始:', { key, data });
-
-        if (!context.env.ZOMBIE_URLS) {
-            throw new Error('KV binding not found');
-        }
-
+        console.log('Saving to KV:', { key, data });
         await context.env.ZOMBIE_URLS.put(key, JSON.stringify(data));
-        console.log('KV保存成功:', key);
         return true;
     } catch (error) {
-        console.error('KV保存エラー:', error);
-        return false;
+        console.error('KV save error:', error);
+        throw error;
     }
 }
 
