@@ -39,8 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
         resultDiv.textContent = "";
 
         try {
-            // APIエンドポイントのパスを修正
-            const response = await fetch("/functions/check-url", {
+            // APIエンドポイントのパスを/api/に修正
+            const response = await fetch("/api/check-url", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
