@@ -21,11 +21,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultDiv = document.querySelector('#result');
 
     form.addEventListener('submit', async (e) => {
-        e.preventDefault(); // フォームのデフォルトの送信を防ぐ
+        e.preventDefault();
+
+        // URLの形式を検証（クライアントサイド）
+        const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
+        if (!urlPattern.test(urlInput.value)) {
+            resultDiv.className = 'mt-4 text-center text-red-500';
+            resultDiv.textContent = '正しいURLの形式で入力してください';
+            return;
+        }
 
         // ボタンを無効化し、ローディング状態を表示
         submitButton.disabled = true;
-        submitButton.textContent = '処理中...';
+        submitButton.textContent = '送信中...';
+        resultDiv.textContent = '';
 
         try {
             const response = await fetch('/api/check-url', {
@@ -37,15 +46,18 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await response.json();
-            if (!response.ok) {
-                resultDiv.className = 'mt-4 text-red-500';
+
+            if (response.ok) {
+                resultDiv.className = 'mt-4 text-center text-green-500';
+                resultDiv.textContent = '通報ありがとうございます。URLを受け付けました。';
+                urlInput.value = ''; // フォームをクリア
             } else {
-                resultDiv.className = 'mt-4 text-green-500';
+                resultDiv.className = 'mt-4 text-center text-red-500';
+                resultDiv.textContent = data.message || 'エラーが発生しました';
             }
-            resultDiv.textContent = data.message;
         } catch (error) {
-            resultDiv.className = 'mt-4 text-red-500';
-            resultDiv.textContent = 'エラーが発生しました。もう一度お試しください。';
+            resultDiv.className = 'mt-4 text-center text-red-500';
+            resultDiv.textContent = 'サーバーとの通信に失敗しました';
         } finally {
             // ボタンを再度有効化
             submitButton.disabled = false;
