@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2040年人口減少シミュレーション</title>
+    <title>2040年人口問題</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,7 +47,7 @@
 </head>
 
 <body>
-    <h1>日本の人口減少シミュレーション</h1>
+    <h1>人口減少発見装置</h1>
     <p>現在の時刻: <span id="currentTime"></span></p>
     <p>現在の人口: <span id="population"></span> 人</p>
     <p>次の死亡まで: <span id="countdown">38.58</span> 秒</p>
@@ -58,31 +58,35 @@
     <div id="log"></div>
 
     <script>
-        const initialPopulation = 124500000;
+        const baseTime = new Date("2025-02-25T12:00:00");
+        const basePopulation = 124500000;
         const futurePopulation = 110920000;
-        const yearsRemaining = 2040 - new Date().getFullYear();
-        let currentPopulation = initialPopulation;
-        const totalSeconds = yearsRemaining * 365 * 24 * 60 * 60;
-        const populationDecrease = initialPopulation - futurePopulation;
+        const totalSeconds = (new Date("2040-01-01").getTime() - baseTime.getTime()) / 1000;
+        const populationDecrease = basePopulation - futurePopulation;
         const secondsPerDeath = totalSeconds / populationDecrease;
         let countdown = secondsPerDeath;
 
+        function getCurrentPopulation() {
+            const elapsedSeconds = (new Date().getTime() - baseTime.getTime()) / 1000;
+            return Math.max(basePopulation - Math.floor(elapsedSeconds / secondsPerDeath), futurePopulation);
+        }
+
         function updateClock() {
-            document.getElementById("currentTime").textContent = new Date().toLocaleTimeString();
+            const now = new Date();
+            document.getElementById("currentTime").textContent = now.toLocaleDateString() + " " + now.toLocaleTimeString();
         }
 
         function updatePopulation() {
-            currentPopulation -= 1;
-            document.getElementById("population").textContent = Math.floor(currentPopulation).toLocaleString();
+            document.getElementById("population").textContent = getCurrentPopulation().toLocaleString();
         }
 
         function countdownTimer() {
-            countdown -= 0.1;
+            countdown -= 0.01;
             if (countdown <= 0) {
                 logDeath();
                 countdown = secondsPerDeath;
             }
-            document.getElementById("countdown").textContent = countdown.toFixed(2);
+            document.getElementById("countdown").textContent = countdown.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById("progress-bar").style.width = (countdown / secondsPerDeath) * 100 + "%";
         }
 
@@ -92,7 +96,8 @@
             const surname = surnames[Math.floor(Math.random() * surnames.length)];
             const givenName = givenNames[Math.floor(Math.random() * givenNames.length)];
             const fullName = `${surname} ${givenName}`;
-            const logEntry = `${new Date().toLocaleTimeString()} - ${fullName} が死亡しました。`;
+            const now = new Date();
+            const logEntry = `${now.toLocaleDateString()} ${now.toLocaleTimeString()} - ${fullName} が死亡しました。`;
 
             const logElement = document.createElement("p");
             logElement.textContent = logEntry;
@@ -100,8 +105,8 @@
         }
 
         setInterval(updateClock, 1000);
-        setInterval(updatePopulation, secondsPerDeath * 1000);
-        setInterval(countdownTimer, 100);
+        setInterval(updatePopulation, 1000);
+        setInterval(countdownTimer, 10);
     </script>
 </body>
 
