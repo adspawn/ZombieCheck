@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2040年人口減少シミュレーション</title>
+    <title>2040年問題・人口減少シミュレーション</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,7 +39,7 @@
     <div id="log"></div>
 
     <script>
-        const initialPopulation = 124000000; // 2024年の人口
+        const initialPopulation = 124500000; // 2024年の人口
         const futurePopulation = 110920000; // 2040年の人口予測
         const yearsRemaining = 2040 - new Date().getFullYear();
         let currentPopulation = initialPopulation;
@@ -61,7 +61,7 @@
         }
 
         function countdownTimer() {
-            countdown -= 1;
+            countdown -= 0.01;
             if (countdown <= 0) {
                 logDeath();
                 countdown = secondsPerDeath;
