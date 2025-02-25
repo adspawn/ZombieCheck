@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2040年問題・人口減少シミュレーション</title>
+    <title>2040年人口減少シミュレーション</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,6 +27,22 @@
             font-weight: bold;
             margin: 10px 0;
         }
+
+        #progress-container {
+            width: 50%;
+            background-color: #555;
+            height: 20px;
+            margin: 10px auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background-color: red;
+            width: 100%;
+            transition: width linear;
+        }
     </style>
 </head>
 
@@ -35,21 +51,21 @@
     <p>現在の時刻: <span id="currentTime"></span></p>
     <p>現在の人口: <span id="population"></span> 人</p>
     <p>次の死亡まで: <span id="countdown">38.58</span> 秒</p>
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
     <h2>死亡ログ</h2>
     <div id="log"></div>
 
     <script>
-        const initialPopulation = 124500000; // 2024年の人口
-        const futurePopulation = 110920000; // 2040年の人口予測
+        const initialPopulation = 124500000;
+        const futurePopulation = 110920000;
         const yearsRemaining = 2040 - new Date().getFullYear();
         let currentPopulation = initialPopulation;
         const totalSeconds = yearsRemaining * 365 * 24 * 60 * 60;
         const populationDecrease = initialPopulation - futurePopulation;
         const secondsPerDeath = totalSeconds / populationDecrease;
         let countdown = secondsPerDeath;
-
-        const surnames = ["佐藤", "鈴木", "高橋", "田中", "伊藤", "山本", "中村", "小林", "加藤", "吉田", "山田", "松本", "井上", "木村", "林", "清水", "斎藤", "池田", "橋本", "山崎", "石井", "中川", "前田", "藤井", "岡田", "長谷川", "後藤", "近藤", "村上", "小松", "杉山", "竹内", "武田", "菅原", "藤原", "三浦", "石川", "金子", "青木", "中野", "原田", "福田", "藤田", "西村", "大野", "平野", "菊池", "永井", "吉川", "島田", "森田", "大塚", "大西", "高木", "松井", "工藤", "中島", "桜井", "沢田", "吉村", "小山", "上田", "森本", "内田", "川口", "坂口", "柴田", "山内", "浜田", "宮田", "福井", "白井", "大島", "秋山", "石田", "谷口", "今井", "宮本", "飯田", "星野", "野村", "須藤", "奥村", "栗原", "酒井", "西田", "堀", "川崎", "増田", "上原", "武藤", "長井", "北村", "坂本", "中山", "原", "河野", "関", "安田", "川上", "久保", "松尾", "高田", "成田"];
-        const givenNames = ["太郎", "花子", "一郎", "二郎", "三郎", "美咲", "健一", "真由美", "翔", "美月", "陽菜", "大輔", "悠斗", "杏奈", "直樹", "颯太", "彩花", "陽向", "亮太", "未来", "雄大", "奈々", "結菜", "悠真", "翔太", "美優", "拓海", "莉子", "翔吾", "陽葵", "瑛太", "陽子", "壮太", "和奏", "大樹", "沙織", "直人", "真央", "俊介", "明日香", "航平", "美琴", "隼人", "舞", "健太", "結愛", "慧", "葵", "蒼太", "千尋", "浩太", "佳奈", "陽平", "香織", "智也", "詩織", "悠生", "里奈", "翔平", "梓", "直哉", "彩乃", "悠翔", "遥香", "陽翔", "菜々美", "将太", "由美", "健人", "陽菜子", "隼翔", "佳乃", "響", "真理", "晴翔", "花音", "悠斗", "玲奈", "大翔", "陽菜乃", "颯翔", "里穂", "蓮", "彩華", "樹", "咲希", "湊", "楓", "楓太", "結衣", "翔悟", "陽奈", "優斗", "さくら", "陽輝", "瑞希", "悠希", "玲香", "奏太", "莉奈"];
 
         function updateClock() {
             document.getElementById("currentTime").textContent = new Date().toLocaleTimeString();
@@ -61,15 +77,18 @@
         }
 
         function countdownTimer() {
-            countdown -= 0.01;
+            countdown -= 0.1;
             if (countdown <= 0) {
                 logDeath();
                 countdown = secondsPerDeath;
             }
             document.getElementById("countdown").textContent = countdown.toFixed(2);
+            document.getElementById("progress-bar").style.width = (countdown / secondsPerDeath) * 100 + "%";
         }
 
         function logDeath() {
+            const surnames = ["佐藤", "鈴木", "高橋", "田中", "伊藤", "山本", "中村", "小林", "加藤", "吉田"];
+            const givenNames = ["太郎", "花子", "一郎", "二郎", "三郎", "美咲", "健一", "真由美", "翔", "美月"];
             const surname = surnames[Math.floor(Math.random() * surnames.length)];
             const givenName = givenNames[Math.floor(Math.random() * givenNames.length)];
             const fullName = `${surname} ${givenName}`;
@@ -82,7 +101,7 @@
 
         setInterval(updateClock, 1000);
         setInterval(updatePopulation, secondsPerDeath * 1000);
-        setInterval(countdownTimer, 1000);
+        setInterval(countdownTimer, 100);
     </script>
 </body>
 
